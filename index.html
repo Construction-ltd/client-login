@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS Client Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --primary: #e67e22; --dark: #2c3e50; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; color: #333; }
+        
+        /* Login UI */
+        #login-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border-bottom: 8px solid var(--primary); }
+        .input-box { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        /* Dashboard UI */
+        #dashboard { display: none; }
+        .header { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        
+        /* Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 25px; border-radius: 15px; border-left: 8px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
+        .card .val { font-size: 30px; font-weight: 800; color: var(--dark); margin-top: 10px; }
+
+        /* Table */
+        .table-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--dark); color: white; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+
+        .footer { text-align: center; margin-top: 50px; padding: 30px; background: white; border-top: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="login-card">
+    <img src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/605243562_908002708456468_4393973484981407834_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGlOhCWlvFFn-rSxXAxrYeXFalWBXYMbn8VqVYFdgxuf2bdlA_oZdUCRdnWJNqTLDlCbf116j8ZfWV61JH2zPE0&_nc_ohc=r-IYHw8J8DYQ7kNvwF1IKVx&_nc_oc=AdlQPd8FcOIRtb4Bl0I8BBLq2ugTLAMneeV05-9lrbP87dRlVBqQhmIPRHWyfzDQXFw&_nc_zt=23&_nc_ht=scontent.fjsr18-2.fna&_nc_gid=AyxrmVtdQUim-Ti0bfiwEg&oh=00_Afrs543xlVfu6TU2CARAz3brBsGUMQa_FHU8cmF7zcvcRw&oe=695C988C" style="width: 70px; margin-bottom: 10px;">
+    <h2>Client Portal</h2>
+    <select id="userDrop" class="input-box"><option>Loading Users...</option></select>
+    <input type="password" id="passInput" class="input-box" placeholder="Enter Password">
+    <button class="btn-login" onclick="login()">LOGIN NOW</button>
+</div>
+
+<div id="dashboard">
+    <div class="header">
+        <div>
+            <h2 style="margin:0; color:var(--dark);">SOHANUR CONSTRUCTION</h2>
+            <p style="margin:0; font-size: 11px; font-weight: bold; color: var(--primary);">& Manpower Solution</p>
+        </div>
+        <button onclick="location.reload()" style="background:#f0f0f0; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Logout</button>
+    </div>
+
+    <div class="container">
+        <div style="background:white; padding:20px; border-radius:12px; margin-bottom:25px; display:flex; gap:15px; align-items:center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <label style="font-weight:bold;">Filter Date:</label>
+                <input type="date" id="dateFilter" class="input-box" style="margin:0; width:180px;">
+                <button class="btn-login" style="width:auto; padding:10px 20px;" onclick="updateDisplay()">FILTER</button>
+            </div>
+            <div style="flex:1; text-align:right; font-weight:bold; color:var(--primary);" id="welcomeMsg"></div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>Total Paid (Lifetime)</h3>
+                <div class="val" id="totalVal">Tk. 0</div>
+            </div>
+            <div class="card">
+                <h3>Filtered Date Total</h3>
+                <div class="val" id="dateVal" style="color:var(--primary);">Tk. 0</div>
+            </div>
+        </div>
+
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transaction ID</th>
+                        <th>Amount (Tk)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        📍 Naogaon Sadar, Naogaon | 📞 +8801805-090910 |  📞 +8801805-090950 | 📧 sohanurconstructionltd@gmail.com
+    </div>
+</div>
+
+<script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
+    let sheetData = [];
+    let loggedInClient = "";
+
+    async function loadData() {
+        const res = await fetch(SHEET_URL);
+        const text = await res.text();
+        sheetData = text.split('\n').map(row => row.split(','));
+        
+        const drop = document.getElementById('userDrop');
+        drop.innerHTML = '<option value="">Select Your Name</option>';
+        
+        // G কলাম (Index 6) থেকে সব ইউজার লিস্ট নেওয়া
+        let users = [];
+        sheetRows = sheetData.slice(1);
+        sheetRows.forEach(r => {
+            if(r[6] && r[6].trim() !== "") users.push(r[6].trim());
+        });
+        [...new Set(users)].forEach(u => drop.add(new Option(u, u)));
+    }
+
+    function login() {
+        const user = document.getElementById('userDrop').value;
+        const pass = document.getElementById('passInput').value;
+        // G (6) এবং H (7) কলাম চেক
+        const valid = sheetData.find(r => r[6]?.trim() === user && r[7]?.trim() === pass);
+
+        if(valid) {
+            loggedInClient = user;
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('welcomeMsg').innerText = "Client: " + user;
+            updateDisplay();
+        } else {
+            alert("Wrong Password! Please try again.");
+        }
+    }
+
+    function updateDisplay() {
+        const fDate = document.getElementById('dateFilter').value;
+        // D কলাম (Index 3) এর সাথে লগইন নেম ম্যাচিং
+        const myRows = sheetData.filter(r => r[3]?.trim() === loggedInClient);
+        
+        let total = 0, dateTotal = 0, html = "";
+
+        myRows.forEach(r => {
+            // E কলাম (Index 4) থেকে অ্যামাউন্ট নেওয়া হচ্ছে
+            let rawAmt = r[4] ? r[4].replace(/[^0-9.]/g, '') : "0";
+            let amt = parseFloat(rawAmt) || 0;
+            let rowDate = r[2] ? r[2].trim() : "";
+            
+            total += amt;
+
+            // Date filtering
+            if(fDate && rowDate.includes(fDate)) {
+                dateTotal += amt;
+            } else if(fDate && rowDate.split('/').reverse().join('-') === fDate) {
+                dateTotal += amt;
+            }
+
+            html += `<tr>
+                <td>${rowDate}</td>
+                <td>${r[1] || 'N/A'}</td>
+                <td><b>Tk. ${amt.toLocaleString()}</b></td>
+                <td><span style="color:green; font-weight:bold;"><i class="fa fa-check-circle"></i> Paid</span></td>
+            </tr>`;
+        });
+
+        document.getElementById('totalVal').innerText = "Tk. " + total.toLocaleString();
+        document.getElementById('dateVal').innerText = "Tk. " + dateTotal.toLocaleString();
+        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">No records found</td></tr>';
+    }
+
+    window.onload = loadData;
+</script>
+</body>
+</html>
