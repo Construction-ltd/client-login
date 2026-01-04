@@ -13,6 +13,7 @@
         #login-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border-bottom: 8px solid var(--primary); }
         .input-box { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
         .btn-login { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: #d35400; }
         
         /* Dashboard UI */
         #dashboard { display: none; }
@@ -26,19 +27,19 @@
         .card .val { font-size: 30px; font-weight: 800; color: var(--dark); margin-top: 10px; }
 
         /* Table */
-        .table-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .table-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th { background: var(--dark); color: white; padding: 15px; text-align: left; }
         td { padding: 15px; border-bottom: 1px solid #eee; }
 
-        .footer { text-align: center; margin-top: 50px; padding: 30px; background: white; border-top: 1px solid #ddd; }
+        .footer { text-align: center; margin-top: 50px; padding: 30px; background: white; border-top: 1px solid #ddd; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div id="login-card">
-    <img src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/605243562_908002708456468_4393973484981407834_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGlOhCWlvFFn-rSxXAxrYeXFalWBXYMbn8VqVYFdgxuf2bdlA_oZdUCRdnWJNqTLDlCbf116j8ZfWV61JH2zPE0&_nc_ohc=r-IYHw8J8DYQ7kNvwF1IKVx&_nc_oc=AdlQPd8FcOIRtb4Bl0I8BBLq2ugTLAMneeV05-9lrbP87dRlVBqQhmIPRHWyfzDQXFw&_nc_zt=23&_nc_ht=scontent.fjsr18-2.fna&_nc_gid=AyxrmVtdQUim-Ti0bfiwEg&oh=00_Afrs543xlVfu6TU2CARAz3brBsGUMQa_FHU8cmF7zcvcRw&oe=695C988C" style="width: 70px; margin-bottom: 10px;">
-    <h2>Client Portal</h2>
+    <h2 style="color:var(--dark);">SCMS <span style="color:var(--primary);">Client Portal</span></h2>
+    <p style="color:#777; font-size: 14px;">Select your name and enter password</p>
     <select id="userDrop" class="input-box"><option>Loading Users...</option></select>
     <input type="password" id="passInput" class="input-box" placeholder="Enter Password">
     <button class="btn-login" onclick="login()">LOGIN NOW</button>
@@ -54,13 +55,13 @@
     </div>
 
     <div class="container">
-        <div style="background:white; padding:20px; border-radius:12px; margin-bottom:25px; display:flex; gap:15px; align-items:center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div style="background:white; padding:20px; border-radius:12px; margin-bottom:25px; display:flex; flex-wrap:wrap; gap:15px; align-items:center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <div style="display:flex; align-items:center; gap:10px;">
                 <label style="font-weight:bold;">Filter Date:</label>
                 <input type="date" id="dateFilter" class="input-box" style="margin:0; width:180px;">
                 <button class="btn-login" style="width:auto; padding:10px 20px;" onclick="updateDisplay()">FILTER</button>
             </div>
-            <div style="flex:1; text-align:right; font-weight:bold; color:var(--primary);" id="welcomeMsg"></div>
+            <div style="flex:1; text-align:right; font-weight:bold; color:var(--primary); min-width: 200px;" id="welcomeMsg"></div>
         </div>
 
         <div class="card-grid">
@@ -90,82 +91,110 @@
     </div>
 
     <div class="footer">
-        📍 Naogaon Sadar, Naogaon | 📞 +8801805-090910 |  📞 +8801805-090950 | 📧 sohanurconstructionltd@gmail.com
+        📍 Naogaon Sadar, Naogaon | 📞 +8801805-090910 | 📧 sohanurconstructionltd@gmail.com
     </div>
 </div>
 
 <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
-    let sheetData = [];
+    // URLs
+    const PAYMENT_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
+    const USER_LIST_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=1258553023&single=true&output=csv";
+
+    let paymentRecords = [];
+    let userCredentials = [];
     let loggedInClient = "";
 
+    // Load both datasets
     async function loadData() {
-        const res = await fetch(SHEET_URL);
-        const text = await res.text();
-        sheetData = text.split('\n').map(row => row.split(','));
-        
-        const drop = document.getElementById('userDrop');
-        drop.innerHTML = '<option value="">Select Your Name</option>';
-        
-        // G কলাম (Index 6) থেকে সব ইউজার লিস্ট নেওয়া
-        let users = [];
-        sheetRows = sheetData.slice(1);
-        sheetRows.forEach(r => {
-            if(r[6] && r[6].trim() !== "") users.push(r[6].trim());
-        });
-        [...new Set(users)].forEach(u => drop.add(new Option(u, u)));
+        try {
+            // 1. Load User List for Login
+            const userRes = await fetch(USER_LIST_URL);
+            const userText = await userRes.text();
+            userCredentials = userText.split('\n').map(row => row.split(','));
+
+            const drop = document.getElementById('userDrop');
+            drop.innerHTML = '<option value="">Select Your Name</option>';
+            
+            // Column A (Index 0) for names
+            for (let i = 1; i < userCredentials.length; i++) {
+                let name = userCredentials[i][0]?.replace(/"/g, '').trim();
+                if (name) drop.add(new Option(name, name));
+            }
+
+            // 2. Load Payment Records
+            const payRes = await fetch(PAYMENT_DATA_URL);
+            const payText = await payRes.text();
+            paymentRecords = payText.split('\n').map(row => row.split(','));
+
+        } catch (error) {
+            console.error("Data Load Error:", error);
+            alert("Database connection failed!");
+        }
     }
 
     function login() {
-        const user = document.getElementById('userDrop').value;
-        const pass = document.getElementById('passInput').value;
-        // G (6) এবং H (7) কলাম চেক
-        const valid = sheetData.find(r => r[6]?.trim() === user && r[7]?.trim() === pass);
+        const selectedUser = document.getElementById('userDrop').value;
+        const enteredPass = document.getElementById('passInput').value.trim();
 
-        if(valid) {
-            loggedInClient = user;
+        if(!selectedUser) return alert("Please select a name!");
+
+        // Find user in credentials list (Col A: Name, Col B: Pass)
+        const account = userCredentials.find(r => 
+            r[0]?.replace(/"/g, '').trim() === selectedUser && 
+            r[1]?.replace(/"/g, '').trim() === enteredPass
+        );
+
+        if(account) {
+            loggedInClient = selectedUser;
             document.getElementById('login-card').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('welcomeMsg').innerText = "Client: " + user;
+            document.getElementById('welcomeMsg').innerText = "Logged in as: " + selectedUser;
             updateDisplay();
         } else {
-            alert("Wrong Password! Please try again.");
+            alert("Access Denied! Incorrect Password.");
         }
     }
 
     function updateDisplay() {
         const fDate = document.getElementById('dateFilter').value;
-        // D কলাম (Index 3) এর সাথে লগইন নেম ম্যাচিং
-        const myRows = sheetData.filter(r => r[3]?.trim() === loggedInClient);
+        
+        // Filter paymentRecords based on loggedInClient name in Column D (Index 3)
+        const myRows = paymentRecords.filter(r => 
+            r[3]?.replace(/"/g, '').trim() === loggedInClient
+        );
         
         let total = 0, dateTotal = 0, html = "";
 
         myRows.forEach(r => {
-            // E কলাম (Index 4) থেকে অ্যামাউন্ট নেওয়া হচ্ছে
+            // Column E (Index 4) for amount
             let rawAmt = r[4] ? r[4].replace(/[^0-9.]/g, '') : "0";
             let amt = parseFloat(rawAmt) || 0;
-            let rowDate = r[2] ? r[2].trim() : "";
+            
+            // Column C (Index 2) for Date
+            let rowDate = r[2] ? r[2].replace(/"/g, '').trim() : "";
             
             total += amt;
 
-            // Date filtering
-            if(fDate && rowDate.includes(fDate)) {
-                dateTotal += amt;
-            } else if(fDate && rowDate.split('/').reverse().join('-') === fDate) {
-                dateTotal += amt;
+            // Date filtering logic
+            if(fDate) {
+                // Handle different date formats (YYYY-MM-DD vs DD/MM/YYYY)
+                let formattedRowDate = rowDate.split('/').reverse().join('-');
+                if(rowDate.includes(fDate) || formattedRowDate === fDate) {
+                    dateTotal += amt;
+                }
             }
 
             html += `<tr>
                 <td>${rowDate}</td>
-                <td>${r[1] || 'N/A'}</td>
+                <td>${r[1]?.replace(/"/g, '') || 'N/A'}</td>
                 <td><b>Tk. ${amt.toLocaleString()}</b></td>
-                <td><span style="color:green; font-weight:bold;"><i class="fa fa-check-circle"></i> Paid</span></td>
+                <td><span style="color:green; font-weight:bold;"><i class="fa fa-check-circle"></i> Confirmed</span></td>
             </tr>`;
         });
 
         document.getElementById('totalVal').innerText = "Tk. " + total.toLocaleString();
-        document.getElementById('dateVal').innerText = "Tk. " + dateTotal.toLocaleString();
-        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">No records found</td></tr>';
+        document.getElementById('dateVal').innerText = fDate ? "Tk. " + dateTotal.toLocaleString() : "Select Date First";
+        document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">No payment records found for this account.</td></tr>';
     }
 
     window.onload = loadData;
